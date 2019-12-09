@@ -23,5 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 config.js
-/testFolder
 debug.log
+/testFolder
+/prod
