@@ -16,7 +16,7 @@ function App() {
   React.useEffect(() => {
     socketIo.on('connect', () => {
       socketIo.on('torrent', ({data}) => setTorrents(data));
-      socketIo.on('done', ({data}) => notification.success({message: `DOWNLOAD DONE ${data.name}`, duration: null}));
+      socketIo.on('done', ({data}) => notification.success({message: `DOWNLOAD DONE ${data}`, duration: null}));
     });
   }, []);
 
@@ -55,7 +55,10 @@ function App() {
           <Button key="1" onClick={() => toggleShowModal(true)}>
             <Icon type="file-add" />
           </Button>,
-          <Button key="4" onClick={() => selected.forEach((name) => socketIo.send(`delete:${name}`))}>
+          <Button key="4" onClick={() => selected.forEach((uri) => {
+            console.log(uri);
+            socketIo.send('delete', {uri})
+          })}>
             <Icon type="delete" />
           </Button>,
         ]}
@@ -64,7 +67,7 @@ function App() {
         size="large"
         bordered
         style={{paddinhRight: '10px'}}
-        dataSource={torrents}
+        dataSource={torrents.filter((item) => item.progress !== null)}
         renderItem={(item) => ListItem(item, selected, setSelected)}
       />
     </>

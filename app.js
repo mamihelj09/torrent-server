@@ -25,45 +25,32 @@ io.on('connection', function (socket) {
     const { type, folder, link } = data;
     logger.log({level: 'info', message: 'Torrent added', additional: `type:${type}, folder:${folder}`});
 
+    if (torrentList.includes(link)) {
+      logger.log({level: 'warn', message: 'Torrent already added',});
+      return;
+    }
+
     await handleDownloadFolder(type, folder);
     client.add(link, {path: `${TORRENT_PATH}/${type}/${folder}/`}, (torrent) => {
-      const interval = setInterval(() => {
-        const torrentName = torrent.name;
-        const torrentIndex = torrentList.findIndex((item) => item.name === torrent.name);
-        if (torrentIndex > -1) {
-          torrentList[torrentIndex] = torrent;
-        } else {
-          torrentList.push(torrent);
-        }
+      torrentList.push(link);
 
-        // trigger global interval
-        triggerGlobalEmit(socket);
+      // trigger global interval
+      triggerGlobalEmit(socket);
 
-        if (torrent.progress === 1) {
-          socket.emit('done', {data: torrentName});
-          socket.broadcast.emit('done', {data: torrentName});
+      torrent.on('done', () => {
+        socket.emit('done', {data: torrent.name});
+        socket.broadcast.emit('done', {data: torrent.name});
+        client.remove(link);
 
-          // remote done torrent
-          torrentList = torrentList.filter((item) => item.name !== torrent.name);
-          // clear torrent list update interval
-          clearInterval(interval);
-
-          // if no more torrents are being downloaded clear global interval
-          if (torrentList.length === 0) {
-            clearInterval(emitInterval);
-          }
-        }
-      }, 1000);
-
-      socket.on(`delete:${torrent.name}`, () => {
-        clearInterval(interval);
-        torrentList = torrentList.filter((item) => item.name !== torrent.name);
-
-        if (torrentList.length === 0) {
-          clearInterval(emitInterval);
-        }
+        lastTorrentCleanup(socket, link);
       });
     })
+  });
+
+
+  socket.on('delete', (uri) => {
+    client.remove(uri);
+    lastTorrentCleanup(socket, uri);
   })
 });
 
@@ -76,7 +63,7 @@ app.get('/', function (req, res) {
 
 app.get('/folders', (req, res) => {
   const data = require('./folderList.json')
-  res.send(200, JSON.stringify({data: [...data.movie, ...data.show].map((item) => item.split('.').join(' '))}))
+  res.send(200, JSON.stringify({data: [...data.movie, ...data['tv-show']].map((item) => item.split('.').join(' '))}))
 });
 
 function triggerGlobalEmit(socket) {
@@ -85,7 +72,23 @@ function triggerGlobalEmit(socket) {
   }
 
   emitInterval = setInterval(() => {
-    socket.emit('torrent', {data: torrentList.map(torrentToResponse)});
-    socket.broadcast.emit('torrent', {data: torrentList.map(torrentToResponse)});
+    const torrents = client.torrents;
+
+    socket.emit('torrent', {data: torrents.map(torrentToResponse)});
+    socket.broadcast.emit('torrent', {data: torrents.map(torrentToResponse)});
   }, 1000);
+}
+
+function lastTorrentCleanup(socket, link) {
+  // remove done torrent from global list
+  torrentList = torrentList.filter((item) => item !== link);
+
+  // if no more torrents are being downloaded clear global interval
+  if (torrentList.length === 0) {
+    clearInterval(emitInterval);
+    emitInterval = null;
+
+    socket.emit('torrent', {data: []});
+    socket.broadcast.emit('torrent', {data: []});
+  }
 }

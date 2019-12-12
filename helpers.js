@@ -7,6 +7,7 @@ const logger = require('./logger');
 /**
  *
  * @param {
+  * magnetURI: string
   * name: string
   * progress: number
   * downloaded: number
@@ -19,9 +20,10 @@ const logger = require('./logger');
  *
  */
 function torrentToResponse(torrent) {
-  const { name, progress, downloaded, downloadSpeed, numPeers, uploadSpeed, timeRemaining } = torrent;
+  const { magnetURI, name, progress, downloaded, downloadSpeed, numPeers, uploadSpeed, timeRemaining } = torrent;
   return {
-    name: name,
+    uri: magnetURI,
+    name,
     progress: Math.round(progress * 100 * 100) / 100,
     downloaded: (downloaded / 1000000).toFixed(2),
     total: (torrent.length  / 1000000).toFixed(2),

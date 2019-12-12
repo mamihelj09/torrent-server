@@ -3,10 +3,10 @@ import { Icon, List, Progress } from 'antd';
 
 function ListItem(item, selected, setSelected) {
   const toggleItem = () => {
-    if (!selected.includes(item.name)) {
-      setSelected([...selected, item.name])
+    if (!selected.includes(item.uri)) {
+      setSelected([...selected, item.uri])
     } else {
-      setSelected(selected.filter((el) => el !== item.name))
+      setSelected(selected.filter((el) => el !== item.uri))
     }
   }
 
@@ -14,7 +14,7 @@ function ListItem(item, selected, setSelected) {
     <List.Item
       style={{
         cursor: 'pointer',
-        background: selected.includes(item.name) ? '#72B6FF' : 'transparent',
+        background: selected.includes(item.uri) ? '#72B6FF' : 'transparent',
       }}
       onClick={toggleItem}
     >
