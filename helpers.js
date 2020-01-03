@@ -47,6 +47,7 @@ async function handleDownloadFolder(type, folder) {
   return new Promise(async (resolve, reject) => {
     try {
       const rootFolders = await fs.promises.readdir(TORRENT_PATH);
+      console.log(rootFolders)
       if (!rootFolders.includes(type)) {
         await fs.promises.mkdir(`${TORRENT_PATH}/${type}`);
       }
@@ -65,6 +66,7 @@ async function handleDownloadFolder(type, folder) {
 
       resolve();
     } catch(e) {
+      console.log(e)
       logger.log({level: 'error', message: 'Creating folder', additional: e});
       reject();
     }

@@ -27,7 +27,7 @@ function AddFileModalComponent({visible, onCancel, onCreate, form}) {
           })(
             <Radio.Group>
               <Radio value="tv-show">TV SHOW</Radio>
-              <Radio value="movie">MOVIE</Radio>
+              <Radio value="movies">MOVIES</Radio>
             </Radio.Group>
           )}
         </Form.Item>
