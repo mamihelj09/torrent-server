@@ -63,7 +63,7 @@ app.get('/', function (req, res) {
 
 app.get('/folders', (req, res) => {
   const data = require('./folderList.json')
-  res.send(200, JSON.stringify({data: [...data.movie, ...data['tv-show']].map((item) => item.split('.').join(' '))}))
+  res.send(200, JSON.stringify({data: [...data.movies, ...data['tv-show']].map((item) => item.split('.').join(' '))}))
 });
 
 function triggerGlobalEmit(socket) {
