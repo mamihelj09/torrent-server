@@ -4,8 +4,9 @@ import io from 'socket.io-client';
 
 import AddFileModal from './AddFileModal';
 import ListItem from './ListItem';
+// import { KODI_IP } from '../config';
 
-const socketIo = io('http://192.168.0.105:9091');
+const socketIo = io(`${process.env.NODE_ENV === 'development' ? 'localhost' : 'http://192.168.0.105'}:9091`);
 
 function App() {
   const [formRef, setFormRef] = React.useState(null);

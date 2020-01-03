@@ -1,7 +1,8 @@
 const fs = require('fs');
 const dayjs = require('dayjs');
+const fetch = require('node-fetch');
 
-const { TORRENT_PATH } = require('./config');
+const { KODI_IP, TORRENT_PATH } = require('./config');
 const logger = require('./logger');
 
 /**
@@ -73,7 +74,22 @@ async function handleDownloadFolder(type, folder) {
   })
 }
 
+function updateKODIMovieLibrary() {
+  fetch(`${KODI_IP}/jsonrpc`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      'jsonrpc': '2.0',
+      'method': 'VideoLibrary.Scan',
+      'id': 'mybash'
+    })
+  })
+}
+
 module.exports = {
   torrentToResponse,
-  handleDownloadFolder
+  handleDownloadFolder,
+  updateKODIMovieLibrary
 }

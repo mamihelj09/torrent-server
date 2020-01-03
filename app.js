@@ -5,7 +5,7 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const WebTorrent = require('webtorrent');
 
-const { torrentToResponse, handleDownloadFolder } = require('./helpers');
+const { torrentToResponse, handleDownloadFolder, updateKODIMovieLibrary } = require('./helpers');
 const { TORRENT_PATH } = require('./config');
 const logger = require('./logger');
 
@@ -41,6 +41,7 @@ io.on('connection', function (socket) {
         socket.emit('done', {data: torrent.name});
         socket.broadcast.emit('done', {data: torrent.name});
         client.remove(link);
+        updateKODIMovieLibrary();
 
         lastTorrentCleanup(socket, link);
       });
