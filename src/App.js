@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import AddFileModal from './AddFileModal';
 import ListItem from './ListItem';
 
-const socketIo = io('0.0.0.0:9091');
+const socketIo = io('http://192.168.0.105:9091');
 
 function App() {
   const [formRef, setFormRef] = React.useState(null);
